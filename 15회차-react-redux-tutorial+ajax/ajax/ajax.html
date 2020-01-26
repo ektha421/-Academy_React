@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="common/ajax_helper.css" />
+</head>
+
+<body>
+    <form id="frm">
+        <input type="text" name="dname" id="dname">
+        <input type="text" name="loc" id="loc">
+        <input type="submit" value="ok">
+    </form>
+
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>학과번호</th>
+                <th>학과이름</th>
+                <th>학과위치</th>
+            </tr>
+        </thead>
+        <tbody id="listContainer">
+            
+        </tbody>
+    </table>
+    
+    <button type="button" id="more">button</button>
+    <script src="//code.jquery.com/jquery.min.js"></script>
+    <script src="common/jquery.methodOverride.js"></script>
+    <script src="common/ajax_helper.js"></script>
+    <script>
+        const getList = () => {
+            $.get('http://itpaper.co.kr/demo/ajax/api/dept_list.php', {}, (req) => {
+                console.log(req);
+                const container = $("#listContainer");
+
+                for (let i=0; i<req.item.length; i++) {
+                    let tr = $("<tr>");
+                    let td1 = $("<td>").html(req.item[i].deptno);
+                    let td2 = $("<td>").html(req.item[i].dname);
+                    let td3 = $("<td>").html(req.item[i].loc);
+
+                    container.append(tr.append(td1).append(td2).append(td3));
+                }
+            });
+        };
+
+        $(() => {
+            getList();
+
+            $("#more").click((e) => {
+                getList();
+            });
+
+            $("#frm").submit(() => {
+                $.post('http://itpaper.co.kr/demo/ajax/api/dept_write.php', {
+                    dname: $("#dname").val(),
+                    loc: $("#loc").val()
+                }, (req) => {
+                    console.log(req);
+
+                    if (req.rt != "OK") {
+                        alert(req.rt);
+                    }
+
+                    const container = $("#listContainer");
+                    container.empty();
+                    getList();
+                });
+
+                return false;
+            });
+        });
+    </script>
+</body>
+</html>
